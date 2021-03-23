@@ -1,20 +1,8 @@
 {
-  "name": "legend-bot",
-  "version": "0.0.1",
-  "description": "OverLegend network official discord bot",
-  "main": "app.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "legend-bot"
-  },
-  "author": "Nicolò Rancan",
-  "license": "ISC",
   "dependencies": {
-    "discord.js": "^12.3.1",
+    "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
+    "mongoose": "^5.12.2",
     "twit": "^2.2.11"
   }
 }
