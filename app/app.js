@@ -5,10 +5,10 @@ const Discord = require("discord.js");
 const mongoose = require("mongoose");
 
 const bot = new Discord.Client();
-
 bot.login(process.env.botToken);
+require("./utils/mongoConnect")(mongoose);
+
 const TwitterHook = new Discord.WebhookClient(process.env.HOOK_ID, process.env.HOOK_TOKEN);
-const conn = require("./utils/mongoConnect")(mongoose);
 const Requests = require("./utils/requestSchema");
 const prefix = "-";
 
@@ -27,7 +27,7 @@ stream.on("tweet", async (tweet) => {
 });
 
 bot.on("ready", () => {
-  checkForAuthentification();
+  setTimeout(checkForAuthentification, 5000);
 });
 
 
@@ -39,12 +39,11 @@ async function checkForAuthentification() {
 
     users.forEach(async user => {
       if (user.requestExpireDate - now <= 0 && !user.isJoined) {
-        bot.guilds.cache.get(process.env.GUILD_ID).members.cache.get(user.discordId).send(":x: La tua richiesta di autentificatione è scaduta.");
+        bot.users.fetch(user.discordId).then(usr => usr.send(":x: La tua richiesta di autentificatione è scaduta."));
         await Requests.findOneAndDelete({ discordId: user.discordId });
       }
     });
   });
-
   setTimeout(checkForAuthentification, 1000);
 }
 
