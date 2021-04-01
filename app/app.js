@@ -26,7 +26,9 @@ stream.on("tweet", async (tweet) => {
   }
 });
 
-checkForAuthentification();
+bot.on("ready", checkForAuthentification());
+
+
 async function checkForAuthentification() {
   let now = new Date().getTime();
 
@@ -35,8 +37,7 @@ async function checkForAuthentification() {
 
     users.forEach(async user => {
       if (user.requestExpireDate - now <= 0 && !user.isJoined) {
-        bot.guilds.cache.get("706103159835197460").members.cache.get(user.discordId).send(":x: La tua richiesta di autentificatione è scaduta.");
-
+        bot.guilds.cache.get(process.env.GUILD_ID).members.cache.get(user.discordId).send(":x: La tua richiesta di autentificatione è scaduta.");
         await Requests.findOneAndDelete({ discordId: user.discordId });
       }
     });
