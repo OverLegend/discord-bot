@@ -26,7 +26,9 @@ stream.on("tweet", async (tweet) => {
   }
 });
 
-bot.on("ready", checkForAuthentification());
+bot.on("ready", () => {
+  checkForAuthentification();
+});
 
 
 async function checkForAuthentification() {
