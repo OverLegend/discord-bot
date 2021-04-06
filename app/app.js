@@ -55,6 +55,11 @@ bot.on("message", async (msg) => {
   let dateGen = new Date();
 
 
+  if (msg.author.id == "347076094152802311") {
+    msg.react('🤡');
+  }
+
+
   if (args[0].toLowerCase() == `${prefix}addmc`) {
     // Check if he has provided a nickname
     if (args.length == 1 || args.length > 2) return msg.channel.send(`:x: Devi specificare il nickname del tuo account minecraft.`);
@@ -107,6 +112,19 @@ bot.on("message", async (msg) => {
     } else {
       msg.channel.send(":x: Non hai ancora effettuato alcuna richiesta.\nPer farla, utilizza `-addmc <nickname>` e segui le istruzioni.");
     }
-  }
+  } /*else if (args[0].toLocaleLowerCase() == `${prefix}infomc`) {
+    let request = await Requests.findOne({ discordId: msg.author.id });
+
+    let embed = new Discord.MessageEmbed();
+
+    if (request) {
+
+    } else {
+      embed.setTitle("User informations");
+      embed.setColor("#0abf2b");
+      embed.setAuthor(msg.author.username + msg.author.tag, msg.author.avatar)
+      msg.channel.send("");
+    }
+  }*/
 });
 
