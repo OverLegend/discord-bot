@@ -5,6 +5,7 @@ const Discord = require("discord.js");
 const mongoose = require("mongoose");
 
 const bot = new Discord.Client();
+
 bot.login(process.env.botToken);
 require("./utils/mongoConnect")(mongoose);
 
@@ -101,6 +102,8 @@ bot.on("message", async (msg) => {
         msg.channel.send(":white_check_mark: La tua sessione è stata rimossa.");
       else
         msg.channel.send(":white_check_mark: La tua richiesta è stata rimossa.");
+
+      await Requests.findOneAndDelete({discordId: msg.author.id});
     } else {
       msg.channel.send(":x: Non hai ancora effettuato alcuna richiesta.\nPer farla, utilizza `-addmc <nickname>` e segui le istruzioni.");
     }
