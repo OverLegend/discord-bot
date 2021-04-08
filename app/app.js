@@ -54,10 +54,10 @@ bot.on("message", async (msg) => {
   const args = msg.content.split(/\s+/).join(' ').split(" ");
   let dateGen = new Date();
 
-
+  /*
   if (msg.author.id == "347076094152802311") {
     msg.react('🤡');
-  }
+  }*/
 
 
   if (args[0].toLowerCase() == `${prefix}addmc`) {
