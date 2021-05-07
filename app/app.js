@@ -31,17 +31,22 @@ bot.on("ready", () => {
   setTimeout(checkForAuthentification, 5000);
 });
 
-
 async function checkForAuthentification() {
   let now = new Date().getTime();
 
   Requests.find({}, async (err, users) => {
     if (err) throw err;
 
-    users.forEach(async user => {
+    users.forEach(async (user) => {
       if (user.requestExpireDate - now <= 0 && !user.isJoined) {
-        bot.users.fetch(user.discordId).then(usr => usr.send(":x: La tua richiesta di autentificatione è scaduta."));
+        bot.users
+          .fetch(user.discordId)
+          .then((usr) => usr.send(":x: La tua richiesta di autentificatione è scaduta."));
         await Requests.findOneAndDelete({ discordId: user.discordId });
+      } else if (!user.messageSent) {
+        bot.users
+          .fetch(user.discordId)
+          .then((usr) => usr.send(":white_check_mark: Il tuo account è stato verificato!"));
       }
     });
   });
@@ -51,39 +56,33 @@ async function checkForAuthentification() {
 bot.on("message", async (msg) => {
   if (msg.author.bot) return;
 
-  const args = msg.content.split(/\s+/).join(' ').split(" ");
+  const args = msg.content.split(/\s+/).join(" ").split(" ");
   let dateGen = new Date();
 
-  /*
-  if (msg.author.id == "347076094152802311") {
-    msg.react('🤡');
-  }*/
-
-
   if (args[0].toLowerCase() == `${prefix}addmc`) {
-    // Check if he has provided a nickname
-    if (args.length == 1 || args.length > 2) return msg.channel.send(`:x: Devi specificare il nickname del tuo account minecraft.`);
-
     let request = await Requests.findOne({ discordId: msg.author.id });
 
-    // Check if the request has already been done
     if (request) {
-      // Check if he has already joined the server
       if (request.isJoined) {
         msg.channel.send(":white_check_mark: Il tuo account è già autentificato.");
       } else {
+        if (args.length == 1 || args.length > 2)
+          return msg.channel.send(`:x: Devi specificare il nickname del tuo account minecraft.`);
+
         let msDifference = request.requestExpireDate - dateGen.getTime();
         let mDifference = Math.floor(msDifference / (1000 * 60));
 
-        if (mDifference == 0)
-          mDifference = Math.floor(msDifference / 1000) + " secondi";
-        else
-          mDifference += " minuti";
+        if (mDifference == 0) mDifference = Math.floor(msDifference / 1000) + " secondi";
+        else mDifference += " minuti";
 
         if (request.nickname == args[1])
-          msg.channel.send(`:x: Hai già effettuato la richiesta.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.`);
+          msg.channel.send(
+            `:x: Hai già effettuato la richiesta.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.`
+          );
         else
-          msg.channel.send(`:x: Hai già effettuato la richiesta tramite un'altro nickname.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.\nSe hai sbagliato nickname, utilizza \`-removemc\` e riesegui il comando.`);
+          msg.channel.send(
+            `:x: Hai già effettuato la richiesta tramite un'altro nickname.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.\nSe hai sbagliato nickname, utilizza \`-removemc\` e riesegui il comando.`
+          );
       }
     } else {
       // Generate a date that is 10 minutes ahead now
@@ -97,20 +96,22 @@ bot.on("message", async (msg) => {
 
       await newRequest.save();
 
-      msg.channel.send(":white_check_mark: Hai effettuato la richiesta.\nEntra su \`mc.overlegend.it\` entro 10 minuti per completare la procedura.");
+      msg.channel.send(
+        ":white_check_mark: Hai effettuato la richiesta.\nEntra su `mc.overlegend.it` entro 10 minuti per completare la procedura."
+      );
     }
   } else if (args[0].toLowerCase() == `${prefix}removemc`) {
     let request = await Requests.findOne({ discordId: msg.author.id });
 
     if (request) {
-      if (request.isJoined)
-        msg.channel.send(":white_check_mark: La tua sessione è stata rimossa.");
-      else
-        msg.channel.send(":white_check_mark: La tua richiesta è stata rimossa.");
+      if (request.isJoined) msg.channel.send(":white_check_mark: La tua sessione è stata rimossa.");
+      else msg.channel.send(":white_check_mark: La tua richiesta è stata rimossa.");
 
-      await Requests.findOneAndDelete({discordId: msg.author.id});
+      await Requests.findOneAndDelete({ discordId: msg.author.id });
     } else {
-      msg.channel.send(":x: Non hai ancora effettuato alcuna richiesta.\nPer farla, utilizza `-addmc <nickname>` e segui le istruzioni.");
+      msg.channel.send(
+        ":x: Non hai ancora effettuato alcuna richiesta.\nPer farla, utilizza `-addmc <nickname>` e segui le istruzioni."
+      );
     }
   } /*else if (args[0].toLocaleLowerCase() == `${prefix}infomc`) {
     let request = await Requests.findOne({ discordId: msg.author.id });
@@ -127,4 +128,3 @@ bot.on("message", async (msg) => {
     }
   }*/
 });
-
