@@ -44,6 +44,8 @@ async function checkForAuthentification() {
           .then((usr) => usr.send(":x: La tua richiesta di autentificatione è scaduta."));
         await Requests.findOneAndDelete({ discordId: user.discordId });
       } else if (!user.messageSent) {
+        await Requests.findOneAndUpdate({ discordId: user.discordId }, { messageSent: true });
+
         bot.users
           .fetch(user.discordId)
           .then((usr) => usr.send(":white_check_mark: Il tuo account è stato verificato!"));
