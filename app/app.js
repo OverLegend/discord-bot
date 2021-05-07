@@ -68,9 +68,6 @@ bot.on("message", async (msg) => {
       if (request.isJoined) {
         msg.channel.send(":white_check_mark: Il tuo account è già autentificato.");
       } else {
-        if (args.length == 1 || args.length > 2)
-          return msg.channel.send(`:x: Devi specificare il nickname del tuo account minecraft.`);
-
         let msDifference = request.requestExpireDate - dateGen.getTime();
         let mDifference = Math.floor(msDifference / (1000 * 60));
 
@@ -87,6 +84,9 @@ bot.on("message", async (msg) => {
           );
       }
     } else {
+      if (args.length == 1 || args.length > 2)
+        return msg.channel.send(`:x: Devi specificare il nickname del tuo account minecraft.`);
+
       // Generate a date that is 10 minutes ahead now
       let targetDate = new Date(dateGen.getTime() + 10 * 60000).getTime();
 
