@@ -43,7 +43,7 @@ async function checkForAuthentification() {
           .fetch(user.discordId)
           .then((usr) => usr.send(":x: La tua richiesta di autentificatione è scaduta."));
         await Requests.findOneAndDelete({ discordId: user.discordId });
-      } else if (!user.messageSent) {
+      } else if (!user.messageSent && user.isJoined) {
         await Requests.findOneAndUpdate({ discordId: user.discordId }, { messageSent: true });
 
         bot.users
