@@ -13,20 +13,20 @@ module.exports.run = async (bot, msg, args) => {
     if (permissions.channel_send_message)
       msg.channel.send(
         request.isJoined
-          ? messages.utils_emoji_ok + " " + messages.command_removemc_session
-          : messages.utils_emoji_ok + " " + messages.command_removemc_request
+          ? messages.utils.emoji.ok + " " + messages.commands.removemc.cortesy.session
+          : messages.utils.emoji.ok + " " + messages.commands.removemc.cortesy.request
       );
-    else if (permissions.channel_add_reactions) msg.react(messages.utils_emoji_ok);
+    else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.ok);
 
     await Requests.findOneAndDelete({ discordId: msg.author.id });
   } else {
-    if (permissions.channel_send_message) msg.channel.send(messages.utils_emoji_no + " " + messages.command_removemc_none);
-    else if (permissions.channel_add_reactions) msg.react(messages.utils_emoji_no);
+    if (permissions.channel_send_message) msg.channel.send(messages.utils.emoji.no + " " + messages.commands.removemc.cortesy.none);
+    else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.no);
   }
 };
 
 module.exports.help = {
   name: "removemc",
-  usage: messages.command_removemc_usage,
-  description: messages.command_removemc_description,
+  usage: messages.commands.removemc.help.usage,
+  description: messages.commands.removemc.help.description,
 };

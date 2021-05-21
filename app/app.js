@@ -28,13 +28,13 @@ const connectionSettings = {
 
 mongoose.connect(connectionString, connectionSettings, (err) => {
   if (err) throw err;
-  console.log(messages.system_database_connected);
+  console.log(messages.system.database.connected);
 });
 
 bot.once("ready", () => {
   //* FETCHING COMMANDS
   console.clear();
-  console.log(messages.system_commands_fetching);
+  console.log(messages.system.commands.fetching);
 
   bot.commands = new discord.Collection();
 
@@ -42,7 +42,7 @@ bot.once("ready", () => {
     if (err) console.log(err);
     let jsfile = files.filter((f) => f.split(".").pop() === "js");
     if (jsfile.length <= 0) {
-      console.log(messages.system_commands_nothing);
+      console.log(messages.system.commands.nothing);
       return;
     }
     jsfile.forEach((f, i) => {
@@ -59,7 +59,7 @@ bot.once("ready", () => {
   )}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 
   console.clear();
-  console.log(`[${dateString}] ${messages.system_startup_completed}`);
+  console.log(`[${dateString}] ${messages.system.startup.completed}`);
 
   setTimeout(Poller, 5000);
 });

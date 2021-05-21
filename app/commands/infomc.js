@@ -12,13 +12,13 @@ module.exports.run = async (bot, msg, args) => {
   if (request) {
     console.log(request);
   } else {
-    if (permissions.channel_send_message) msg.channel.send(messages.utils_emoji_no + " " + messages.command_infomc_none);
-    else if (permissions.channel_add_reactions) msg.react(messages.utils_emoji_no);
+    if (permissions.channel_send_message) msg.channel.send(messages.utils.emoji.no + " " + messages.commands.infomc.cortesy.none);
+    else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.no);
   }
 };
 
 module.exports.help = {
   name: "infomc",
-  usage: messages.command_infomc_usage,
-  description: messages.command_infomc_description,
+  usage: messages.commands.infomc.help.usage,
+  description: messages.commands.infomc.help.description,
 };

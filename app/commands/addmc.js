@@ -13,26 +13,24 @@ module.exports.run = async (bot, msg, args) => {
 
   if (request) {
     if (request.isJoined) {
-      if (permissions.channel_send_message) msg.channel.send(messages.command_addmc_already);
-      else if (permissions.channel_add_reactions) msg.react(messages.utils_emoji_ok);
+      if (permissions.channel_send_message) msg.channel.send(messages.commands.addmc.cortesy.already);
+      else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.ok);
     } else {
       let msDifference = request.requestExpireDate - dateGen.getTime();
       let mDifference = Math.floor(msDifference / (1000 * 60));
 
-      if (mDifference == 0) mDifference = Math.floor(msDifference / 1000) + " " + messages.utils_time_seconds;
-      else mDifference += " " + messages.utils_time_minutes;
+      if (mDifference == 0) mDifference = Math.floor(msDifference / 1000) + " " + messages.utils.time.seconds;
+      else mDifference += " " + messages.utils.time.minutes;
 
       if (request.nickname == args[1])
         msg.channel.send(
-          `:x: Hai già effettuato la richiesta.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.`
+          messages.utils.emoji.no + " " + messages.commands.addmc.cortesy.otherrequest.replace("{mDifference}", mDifference)
         );
-      else
-        msg.channel.send(
-          `:x: Hai già effettuato la richiesta tramite un'altro nickname.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.\nSe hai sbagliato nickname, utilizza \`-removemc\` e riesegui il comando.`
-        );
+      else msg.channel.send(messages.utils.emoji.no + " " + messages.commands.addmc.cortesy.othernick.replace("{mDifference", mDifference));
     }
   } else {
-    if (args.length == 1 || args.length > 2) return msg.channel.send(messages.no + " " + messages.command_addmc_nonick);
+    if (args.length == 1 || args.length > 2)
+      return msg.channel.send(messages.utils.emoji.no + " " + messages.commands.addmc.cortesy.nonick);
 
     // Generate a date that is 10 minutes ahead now
     let targetDate = new Date(dateGen.getTime() + 10 * 60000).getTime();
@@ -45,12 +43,12 @@ module.exports.run = async (bot, msg, args) => {
 
     await newRequest.save();
 
-    msg.channel.send(messages.ok + " " + messages.command_addmc_new);
+    msg.channel.send(messages.utils.emoji.ok + " " + messages.commands.addmc.cortesy.new);
   }
 };
 
 module.exports.help = {
   name: "addmc",
-  usage: messages.command_addmc_usage,
-  description: messages.command_addmc_description,
+  usage: messages.commands.addmc.help.usage,
+  description: messages.commands.addmc.help.description,
 };
