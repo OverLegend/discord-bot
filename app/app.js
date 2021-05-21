@@ -1,132 +1,79 @@
 require("dotenv").config();
 
-const Twitter = require("twit");
-const Discord = require("discord.js");
+const discord = require("discord.js");
+const bot = new discord.Client();
 const mongoose = require("mongoose");
+const fs = require("fs");
+const Twitter = require("twit");
+const messages = require("./messages.json");
+const Poller = require("./utils/poller").Poller;
+const prefix = "@";
 
-const bot = new Discord.Client();
-
-bot.login(process.env.botToken);
-require("./utils/mongoConnect")(mongoose);
-
-const TwitterHook = new Discord.WebhookClient(process.env.HOOK_ID, process.env.HOOK_TOKEN);
-const Requests = require("./utils/requestSchema");
-const prefix = "-";
-
-const TClient = new Twitter({
+const TwitHook = new Discord.WebhookClient(process.env.HOOK_ID, process.env.HOOK_TOKEN);
+const TwitClient = new Twitter({
   consumer_key: process.env.API_KEY,
   consumer_secret: process.env.API_SECRET,
   access_token: process.env.ACCESS_TOKEN,
   access_token_secret: process.env.ACCESS_TOKEN_SECRET,
 });
 
-let stream = TClient.stream("statuses/filter", { follow: "64565898" });
-stream.on("tweet", async (tweet) => {
-  if (tweet.in_reply_to_user_id_str == null && tweet.user.id_str == "64565898") {
-    TwitterHook.send(`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`);
+require("./utils/twit")(TwitClient, TwitHook);
+
+const connectionString = `${process.env.MONGO_URL}/sessions`;
+const connectionSettings = {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  useFindAndModify: false,
+};
+
+mongoose.connect(connectionString, connectionSettings, (err) => {
+  if (err) throw err;
+  console.log(messages.system_database_connected);
+});
+
+bon.once("ready", () => {
+  //* FETCHING COMMANDS
+  console.clear();
+  console.log(messages.system_commands_fetching);
+
+  bot.commands = new discord.Collection();
+
+  fs.readdir("./commands/", (err, files) => {
+    if (err) console.log(err);
+    let jsfile = files.filter((f) => f.split(".").pop() === "js");
+    if (jsfile.length <= 0) {
+      console.log(messages.system_commands_nothing);
+      return;
+    }
+    jsfile.forEach((f, i) => {
+      let props = require(`./commands/${f}`);
+      console.log(`${f} loaded!`);
+      bot.commands.set(props.help.name, props);
+    });
+  });
+
+  //* INITIALIZATION COMPLETED
+  let date = new Date();
+  let dateString = `${date.getDate()}-${Number(
+    date.getMonth() + 1
+  )}-${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+
+  console.clear();
+  console.log(`[${dateString}] ${messages.system_startup_completed}`);
+
+  setTimeout(Poller, 5000);
+});
+
+bot.on("message", (msg) => {
+  if (msg.author.bot) return;
+  if (msg.channel.type != "text") return;
+
+  let args = msg.content.replace(/\s+/g, " ").toLowerCase().split(" ");
+
+  if (args[0].startsWith(prefix)) {
+    let exists = bot.commands.has(args[0].replace(`${prefix}`, ""));
+    if (exists) bot.commands.get(args[0].replace(`${prefix}`, "")).run(bot, msg, args);
   }
 });
 
-bot.on("ready", () => {
-  setTimeout(checkForAuthentification, 5000);
-});
-
-async function checkForAuthentification() {
-  let now = new Date().getTime();
-
-  Requests.find({}, async (err, users) => {
-    if (err) throw err;
-
-    users.forEach(async (user) => {
-      if (user.requestExpireDate - now <= 0 && !user.isJoined) {
-        bot.users
-          .fetch(user.discordId)
-          .then((usr) => usr.send(":x: La tua richiesta di autentificatione è scaduta."));
-        await Requests.findOneAndDelete({ discordId: user.discordId });
-      } else if (!user.messageSent && user.isJoined) {
-        await Requests.findOneAndUpdate({ discordId: user.discordId }, { messageSent: true });
-
-        bot.users
-          .fetch(user.discordId)
-          .then((usr) => usr.send(":white_check_mark: Il tuo account è stato verificato!"));
-      }
-    });
-  });
-  setTimeout(checkForAuthentification, 1000);
-}
-
-bot.on("message", async (msg) => {
-  if (msg.author.bot) return;
-
-  const args = msg.content.split(/\s+/).join(" ").split(" ");
-  let dateGen = new Date();
-
-  if (args[0].toLowerCase() == `${prefix}addmc`) {
-    let request = await Requests.findOne({ discordId: msg.author.id });
-
-    if (request) {
-      if (request.isJoined) {
-        msg.channel.send(":white_check_mark: Il tuo account è già autentificato.");
-      } else {
-        let msDifference = request.requestExpireDate - dateGen.getTime();
-        let mDifference = Math.floor(msDifference / (1000 * 60));
-
-        if (mDifference == 0) mDifference = Math.floor(msDifference / 1000) + " secondi";
-        else mDifference += " minuti";
-
-        if (request.nickname == args[1])
-          msg.channel.send(
-            `:x: Hai già effettuato la richiesta.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.`
-          );
-        else
-          msg.channel.send(
-            `:x: Hai già effettuato la richiesta tramite un'altro nickname.\nEntra su \`mc.overlegend.it\` entro ${mDifference} per completare la procedura.\nSe hai sbagliato nickname, utilizza \`-removemc\` e riesegui il comando.`
-          );
-      }
-    } else {
-      if (args.length == 1 || args.length > 2)
-        return msg.channel.send(`:x: Devi specificare il nickname del tuo account minecraft.`);
-
-      // Generate a date that is 10 minutes ahead now
-      let targetDate = new Date(dateGen.getTime() + 10 * 60000).getTime();
-
-      let newRequest = new Requests({
-        discordId: msg.author.id,
-        requestExpireDate: targetDate,
-        nickname: args[1],
-      });
-
-      await newRequest.save();
-
-      msg.channel.send(
-        ":white_check_mark: Hai effettuato la richiesta.\nEntra su `mc.overlegend.it` entro 10 minuti per completare la procedura."
-      );
-    }
-  } else if (args[0].toLowerCase() == `${prefix}removemc`) {
-    let request = await Requests.findOne({ discordId: msg.author.id });
-
-    if (request) {
-      if (request.isJoined) msg.channel.send(":white_check_mark: La tua sessione è stata rimossa.");
-      else msg.channel.send(":white_check_mark: La tua richiesta è stata rimossa.");
-
-      await Requests.findOneAndDelete({ discordId: msg.author.id });
-    } else {
-      msg.channel.send(
-        ":x: Non hai ancora effettuato alcuna richiesta.\nPer farla, utilizza `-addmc <nickname>` e segui le istruzioni."
-      );
-    }
-  } /*else if (args[0].toLocaleLowerCase() == `${prefix}infomc`) {
-    let request = await Requests.findOne({ discordId: msg.author.id });
-
-    let embed = new Discord.MessageEmbed();
-
-    if (request) {
-
-    } else {
-      embed.setTitle("User informations");
-      embed.setColor("#0abf2b");
-      embed.setAuthor(msg.author.username + msg.author.tag, msg.author.avatar)
-      msg.channel.send("");
-    }
-  }*/
-});
+bot.login(process.env.BOT_TOKEN);

@@ -4,9 +4,9 @@
   "description": "",
   "main": "app.js",
   "dependencies": {
-    "discord.js": "^12.5.1",
-    "dotenv": "^8.2.0",
-    "mongoose": "^5.12.2",
+    "discord.js": "^12.5.3",
+    "dotenv": "^8.6.0",
+    "mongoose": "^5.12.10",
     "twit": "^2.2.11"
   },
   "devDependencies": {},
