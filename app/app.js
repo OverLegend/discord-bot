@@ -31,7 +31,7 @@ mongoose.connect(connectionString, connectionSettings, (err) => {
   console.log(messages.system_database_connected);
 });
 
-bon.once("ready", () => {
+bot.once("ready", () => {
   //* FETCHING COMMANDS
   console.clear();
   console.log(messages.system_commands_fetching);
