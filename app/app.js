@@ -9,7 +9,7 @@ const messages = require("./messages.json");
 const Poller = require("./utils/poller").Poller;
 const prefix = "@";
 
-const TwitHook = new Discord.WebhookClient(process.env.HOOK_ID, process.env.HOOK_TOKEN);
+const TwitHook = new discord.WebhookClient(process.env.HOOK_ID, process.env.HOOK_TOKEN);
 const TwitClient = new Twitter({
   consumer_key: process.env.API_KEY,
   consumer_secret: process.env.API_SECRET,
