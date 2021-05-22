@@ -46,18 +46,18 @@ async function poller() {
             bot.guilds.cache
               .get(process.env.GUILD_ID)
               .channels.cache.get("750798584282349749")
-              .send(messages.utils.emoji.no + " " + messages.system.poller.expired);
+              .send(messages.utils.emoji.no + ` <@${user.discordId}> ` + messages.system.poller.expired);
           })
         );
       } else if (!user.messageSent && user.isJoined) {
         await Requests.findOneAndUpdate({ discordId: user.discordId }, { messageSent: true });
 
         bot.users.fetch(user.discordId).then((usr) =>
-          usr.send(messages.utils_emoji_ok + " " + messages.system.poller.verified).catch(() => {
+          usr.send(messages.utils.emoji.ok + " " + messages.system.poller.verified).catch(() => {
             bot.guilds.cache
               .get(process.env.GUILD_ID)
               .channels.cache.get("750798584282349749")
-              .send(messages.utils_emoji_ok + " " + messages.system.poller.verified);
+              .send(messages.utils.emoji.ok + ` <@${user.discordId}> ` + messages.system.poller.verified);
           })
         );
       }
