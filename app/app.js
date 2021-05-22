@@ -39,12 +39,27 @@ async function poller() {
 
     users.forEach(async (user) => {
       if (user.requestExpireDate - now <= 0 && !user.isJoined) {
-        bot.users.fetch(user.discordId).then((usr) => usr.send(messages.utils.emoji.no + " " + messages.system.poller.expired));
         await Requests.findOneAndDelete({ discordId: user.discordId });
+
+        try {
+          bot.users.fetch(user.discordId).then((usr) => usr.send(messages.utils.emoji.no + " " + messages.system.poller.expired));
+        } catch {
+          bot.guilds.cache
+            .get(process.env.GUILD_ID)
+            .channels.cache.get("750798584282349749")
+            .send(messages.utils.emoji.no + " " + messages.system.poller.expired);
+        }
       } else if (!user.messageSent && user.isJoined) {
         await Requests.findOneAndUpdate({ discordId: user.discordId }, { messageSent: true });
 
-        bot.users.fetch(user.discordId).then((usr) => usr.send(messages.utils_emoji_ok + " " + messages.system.poller.verified));
+        try {
+          bot.users.fetch(user.discordId).then((usr) => usr.send(messages.utils_emoji_ok + " " + messages.system.poller.verified));
+        } catch {
+          bot.guilds.cache
+            .get(process.env.GUILD_ID)
+            .channels.cache.get("750798584282349749")
+            .send(messages.utils_emoji_ok + " " + messages.system.poller.verified);
+        }
       }
     });
   });
