@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const fs = require("fs");
 const Twitter = require("twit");
 const messages = require("./messages.json");
-const Poller = require("./utils/poller").Poller;
+const Requests = require("./schema/Requests");
 const prefix = "@";
 
 const TwitHook = new discord.WebhookClient(process.env.HOOK_ID, process.env.HOOK_TOKEN);
@@ -30,6 +30,27 @@ mongoose.connect(connectionString, connectionSettings, (err) => {
   if (err) throw err;
   console.log(messages.system.database.connected);
 });
+
+async function poller() {
+  let now = new Date().getTime();
+
+  Requests.find({}, async (err, users) => {
+    if (err) throw err;
+
+    users.forEach(async (user) => {
+      if (user.requestExpireDate - now <= 0 && !user.isJoined) {
+        bot.users.fetch(user.discordId).then((usr) => usr.send(messages.utils.emoji.no + " " + messages.system.poller.expired));
+        await Requests.findOneAndDelete({ discordId: user.discordId });
+      } else if (!user.messageSent && user.isJoined) {
+        await Requests.findOneAndUpdate({ discordId: user.discordId }, { messageSent: true });
+
+        bot.users.fetch(user.discordId).then((usr) => usr.send(messages.utils_emoji_ok + " " + messages.system.poller.verified));
+      }
+    });
+  });
+
+  setTimeout(poller, 1000);
+}
 
 bot.once("ready", () => {
   //* FETCHING COMMANDS
@@ -61,9 +82,7 @@ bot.once("ready", () => {
   console.clear();
   console.log(`[${dateString}] ${messages.system.startup.completed}`);
 
-  let poll = new Poller(bot);
-
-  setTimeout(poll.ping, 5000);
+  setTimeout(poller, 5000);
 });
 
 bot.on("message", (msg) => {
