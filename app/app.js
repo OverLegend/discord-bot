@@ -61,7 +61,9 @@ bot.once("ready", () => {
   console.clear();
   console.log(`[${dateString}] ${messages.system.startup.completed}`);
 
-  setTimeout(Poller, 5000);
+  let poll = new Poller(bot);
+
+  setTimeout(poll.ping, 5000);
 });
 
 bot.on("message", (msg) => {
