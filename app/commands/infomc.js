@@ -16,7 +16,11 @@ module.exports.run = async (bot, msg, args) => {
     embedMessage.setAuthor(request.minecraft.nickname, `https://minepic.org/head/${request.minecraft.nickname}`);
     embedMessage.setTitle("Informazioni dell'account");
 
-    embedMessage.addFields({ name: "UUID", value: request.minecraft.uuid });
+    embedMessage.addFields(
+      { name: "\u200B", value: "\u200B" },
+      { name: "UUID", value: request.minecraft.uuid },
+      { name: "\u200B", value: "\u200B" }
+    );
 
     embedMessage.setTimestamp();
     embedMessage.setFooter("OverLegend", "https://www.overlegend.it/img/favicon.png");
