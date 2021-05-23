@@ -1,3 +1,4 @@
+const discord = require("discord.js");
 const Requests = require("../schema/Requests");
 const messages = require("../messages.json");
 
@@ -10,7 +11,17 @@ module.exports.run = async (bot, msg, args) => {
   let request = await Requests.findOne({ discordId: msg.author.id });
 
   if (request) {
-    console.log(request);
+    let embedMessage = new discord.MessageEmbed();
+    embedMessage.setColor("#0ec914");
+    embedMessage.setAuthor(request.minecraft.nickname, `https://minepic.org/head/${request.minecraft.uuid}`);
+    embedMessage.setTitle("Informazioni dell'account");
+
+    embedMessage.addFields({ name: "UUID", value: request.minecraft.uuid });
+
+    embedMessage.setTimestamp();
+    embedMessage.setFooter("OverLegend", "https://www.overlegend.it/img/favicon.svg");
+
+    //https://minepic.org/head/shawn1865
   } else {
     if (permissions.channel_send_message) msg.channel.send(messages.utils.emoji.no + " " + messages.commands.infomc.cortesy.none);
     else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.no);
