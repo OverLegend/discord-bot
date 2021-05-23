@@ -21,7 +21,8 @@ module.exports.run = async (bot, msg, args) => {
     embedMessage.setTimestamp();
     embedMessage.setFooter("OverLegend", "https://www.overlegend.it/img/favicon.svg");
 
-    //https://minepic.org/head/shawn1865
+    if (permissions.channel_send_message) msg.channel.send(embedMessage);
+    else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.no);
   } else {
     if (permissions.channel_send_message) msg.channel.send(messages.utils.emoji.no + " " + messages.commands.infomc.cortesy.none);
     else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.no);
