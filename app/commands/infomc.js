@@ -13,13 +13,13 @@ module.exports.run = async (bot, msg, args) => {
   if (request) {
     let embedMessage = new discord.MessageEmbed();
     embedMessage.setColor("#0ec914");
-    embedMessage.setAuthor(request.minecraft.nickname, `https://minepic.org/head/${request.minecraft.uuid}`);
+    embedMessage.setAuthor(request.minecraft.nickname, `https://minepic.org/head/${request.minecraft.nickname}`);
     embedMessage.setTitle("Informazioni dell'account");
 
     embedMessage.addFields({ name: "UUID", value: request.minecraft.uuid });
 
     embedMessage.setTimestamp();
-    embedMessage.setFooter("OverLegend", "https://www.overlegend.it/img/favicon.svg");
+    embedMessage.setFooter("OverLegend", "https://www.overlegend.it/img/favicon.png");
 
     if (permissions.channel_send_message) msg.channel.send(embedMessage);
     else if (permissions.channel_add_reactions) msg.react(messages.utils.emoji.no);
