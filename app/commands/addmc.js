@@ -38,7 +38,9 @@ module.exports.run = async (bot, msg, args) => {
     let newRequest = new Requests({
       discordId: msg.author.id,
       requestExpireDate: targetDate,
-      nickname: args[1],
+      minecraft: {
+        nickname: args[1],
+      },
     });
 
     await newRequest.save();

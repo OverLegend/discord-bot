@@ -11,11 +11,6 @@ const RequestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    nickname: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     isJoined: {
       type: Boolean,
       required: true,
@@ -25,6 +20,9 @@ const RequestSchema = new mongoose.Schema(
       type: Boolean,
       required: true,
       default: false,
+    },
+    minecraft: {
+      type: Object,
     },
   },
   { collection: "discordrequests" }
