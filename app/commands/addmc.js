@@ -39,7 +39,7 @@ module.exports.run = async (bot, msg, args) => {
       discordId: msg.author.id,
       requestExpireDate: targetDate,
       minecraft: {
-        nickname: args[1],
+        nickname: msg.content.replace(/\s+/g, " ").split(" ")[1],
       },
     });
 
